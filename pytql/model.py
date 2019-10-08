@@ -17,7 +17,7 @@ This module contains the class for representing TQL data structures.
 """
 
 
-class Row (object):
+class Row:
     """
     Represents a row of data in a table.  Columns can be iterated over or retrieved by column name.
     """
@@ -73,7 +73,7 @@ class Row (object):
                 pass  # handled below
 
         if index < 0 or index > len(self._data):
-            raise ValueError("Invalid column %s for row" % column)
+            raise ValueError(f"Invalid column {column} for row.")
 
         return self._data[index]
 
@@ -129,7 +129,7 @@ class Row (object):
         return self.get_column(key)
 
 
-class DataTable (object):
+class DataTable:
     """
     Represents a table of data in TQL.  In contrast to the table with metadata.
     """
