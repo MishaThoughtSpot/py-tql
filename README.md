@@ -1,67 +1,51 @@
-# TQL
+# Python-TQL
 
 This package contains data to make working with ThoughtSpot Query Langague (TQL) easier when writing scripts that 
 interact with TQL.
 
 Currently it only consists of libraries that can be used by other 
 
-### Pre-conditions and assumptions
+## Setup
 
-* The database has been created in ThoughtSpot using TQL
-* The table names are the same as the names of the files with some allowed deviations (see below), 
-e.g. SalesData.csv goes into a SalesData table.
-* The formats for dates, datetimes, boolean, and nulls are the same for all files.
-* (optional) Email has been configured on the cluster so that load results can be sent to indicate status of the load.
+This section will walk you through how to set up the environment to get started with the user tools.
 
-Note that because you can run the load script with different configurations, it's possible to support multiple 
-databases and formats by creating multiple configuration files and running the script with the correct files.
+### Environment
 
-### File names
-`load_files` determines which table to update based on the name of the file.  To do so it looks for all
-files with the extension specified in the ${DATA_FILE_EXTENSION} variable.  It then truncates anything after
-`-`.  If you have table names with additional characters, you can specify `sed` patterns to be removed.  
-The `sed patterns allow file names that have additional information, such as the timestamp of the file.
+These tools have all been written in Python 3.7 and expect to be run in a 3.6 environment at a minimum.
 
-### Directory Structure
-The `load_files` script assumes there is a root directory for a database.  The schema for the root folder can be
-specified in the configuration file.  It defaults to `falcon_default_schema`. 
+You can either install directly into an existing Python environment, but it's better to run in an virtual environment 
+to avoid conflicts with dependencies.  py-tql relies on other packages to run.  Note that this installation 
+process requires external access to install packages and get the py-tql code from GitHub.
 
-You can also have additional schemas under the root folder.  The name of the directory will be used as the schema name
-with the convention and formatting for files being the same in all directories.
+To create a virtual environment, you can run the following from the command prompt:
 
-For example, say you have a database called `MY_COOL_DATABASE` and have two different schemas called `SCHEMA_A` and 
-`SCHEMA_B` with tables in each.  You can create a directory for the data with two sub-directories named SCHEMA_A and
-SCHEMA_B, then put the data to be loaded into those sub-directories.
+`$ virtualenv -p python3 ./venv`
 
-### Process
+Note that the `venv` folder can be whatever name and location you like (preferably external to a code repository).
 
-Because `load_files` uses `tsload`, it must be run directly on the TS cluster.  It can load files that are physically
-on the cluster, written to a drive that is mounted on the cluster, or written to AWS S3.
+Next, you need to activate the environment with the command: 
 
-`load_files` is typically run one of two ways.  The first approach is to write all of the data to be loaded and
-then call `load_files` via SSH.  This approach is preferred.  The second approach is to use a semaphore (trigger) file
-that is written after the files have been writing.  Then `load_files` is run via cron or other scheduling tool on 
-regular intervals.  If the semaphore file exists then the script will load all of the data.  After 
-the files have been loaded the results can be emailed to an admin.
+`$ source ./venv/bin/activate`
 
-**_WARNING:  Whatever process you implement, you must ensure that files are completely written before `tsload`
-runs.  Failure to do so may result in partial data loads or errors._**
+Note that you will need to reactivate the environment whenever you want to use it.  
 
-### Deploy and configure
+You should see your prompt change to (venv) plus whatever it was before.  To verify the python version run:
 
-`load_files` assumes a particular file structure.  The first time you run it, it will create the sub-directories needed.
-The subdirectories are relative to the ROOT_DIR defined in the configuration file.  For example, let's say you have a 
-mounted drive `/tsmnt` and want to use that for `load_files`.  You might create a `/bin` directory and put `load_files` 
-in that directory.  Then configure to have ROOT_DIR point to `/tsmnt`.  The first time `tsload` is run, it will create 
-multiple subdirectories.  This data directory is where tsload expects to find the data file.  Note that you can create these 
-directories manually and then they are not created.  
+`$ python --version`  You want to be on version 3.6 or higher.
 
-Once `load_files` has been deployed, edit the configuration file to use the variables and flags that are 
-for file locations, etc.  Details of the configuration values are in the template `load.cfg`.  You can have multiple
-configuration files for different scenarios and databases.  
+If you want to leave the virtual environment, simple enter `$ deactivate` or close the terminal you are using.
 
-**_WARNING:_** The configuration flags
-are documented and expected to exist, so removing any can cause `load_files` to fail.
+See https://virtualenv.pypa.io/en/latest/ for more details on using virtualenv.
 
-You should not need to alter the base `load_files` script.  If you find bugs or have issues, please post on 
-https://community.thoughtspot.com
+## Downloading and installing the user tools
+
+Now that you have an environment for installing into you can install directly from GitHub with the command:
+
+`$ pip install git+https://github.com/thoughtspot/py-tql`.  
+
+You should see output as the py-tql and dependencies are installed.  
+
+If you want or need to update to a newer version of the user tools, use the command:
+
+`$ pip install --upgrade git+https://github.com/thoughtspot/py-tql`.  
+
