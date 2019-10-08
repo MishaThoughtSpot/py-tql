@@ -7,7 +7,7 @@ Currently it only consists of libraries that can be used by other
 
 ## Setup
 
-This section will walk you through how to set up the environment to get started with the user tools.
+This section will walk you through how to set up the environment to get started with the Python TQL.
 
 ### Environment
 
@@ -37,7 +37,7 @@ If you want to leave the virtual environment, simple enter `$ deactivate` or clo
 
 See https://virtualenv.pypa.io/en/latest/ for more details on using virtualenv.
 
-## Downloading and installing the user tools
+## Downloading and installing the Python TQL
 
 Now that you have an environment for installing into you can install directly from GitHub with the command:
 
@@ -45,7 +45,7 @@ Now that you have an environment for installing into you can install directly fr
 
 You should see output as the py-tql and dependencies are installed.  
 
-If you want or need to update to a newer version of the user tools, use the command:
+If you want or need to update to a newer version of the Python TQL, use the command:
 
 `$ pip install --upgrade git+https://github.com/thoughtspot/py-tql`.  
 
