@@ -26,7 +26,7 @@ This module contains the class for interacting with TQL.
 """
 
 
-class TQL(object):
+class TQL:
     """
     Wraps the TQL interface.  Note that this class expects to run on the ThoughtSpot cluster and have tql in the path.
     """
@@ -153,6 +153,37 @@ class TQL(object):
         return stdout, stderr
 
 
+class RemoteTQL(TQL):
+    """
+    Provides a remote access to TQL via an SSH session.
+    """
+
+    def __init__(self):
+        """
+        Creates a remote session to TQL.
+        """
+        super(RemoteTQL, self).__init__()
+        # TODO add code to setup the session.
+
+    def execute_tql_query(self, query):
+        """
+        Executes a TQL query and returns the data as a data table.
+        :param query: A complete query to send to TQL.
+        :type query: str
+        :return: A data table with the results.
+        :rtype: DataTable
+        """
+        pass
+
+    def __del__(self):
+        """
+        Ends the remote TQL session.
+        :return: None
+        """
+        pass
+
+
+# TODO move to an application.
 if __name__ == "__main__":
     tql = TQL()
     # send the command.  Wrap in quotes if it has spaces.
