@@ -12,5 +12,6 @@ setup(
     license='MIT',
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
+        'paramiko'
     ]
 )

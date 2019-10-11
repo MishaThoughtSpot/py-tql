@@ -1,5 +1,8 @@
 import logging
 import os
+import paramiko
+import re
+import socket
 import sys
 import shlex
 import subprocess
@@ -24,6 +27,15 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 """
 This module contains the class for interacting with TQL.
 """
+
+
+def eprint(*args, **kwargs):
+    """
+    Prints to standard error similar to regular print.
+    :param args:  Positional arguments.
+    :param kwargs:  Keyword arguments.
+    """
+    print(*args, file=sys.stderr, **kwargs)
 
 
 class TQL:
@@ -158,12 +170,51 @@ class RemoteTQL(TQL):
     Provides a remote access to TQL via an SSH session.
     """
 
-    def __init__(self):
+    def __init__(self, hostname, username=None, password=None, **kwargs):
         """
         Creates a remote session to TQL.
         """
+        print(f"Starting remote TQL to host {hostname}")
+
+        self.prompt = None # nice prompt to use.
+        self._set_prompt(database="none")
+
+        self.__ssh_client = paramiko.SSHClient()
+        self.__ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.__ssh_client.load_system_host_keys()
+        self.__ssh_client.connect(hostname=hostname, username=username, password=password, timeout=10, **kwargs)
+
+        self._channel = self.__ssh_client.invoke_shell()
+        self._connect_to_tql()
+
         super(RemoteTQL, self).__init__()
-        # TODO add code to setup the session.
+
+    def _set_prompt(self, partial=False, database=None, data=None):
+
+        if partial:
+            self.prompt = "$> "
+        else:
+            if database:
+                pass
+            elif data:
+                m = re.search("\[database=(.*)\]", data)
+                if m:
+                    database = m.group(1)
+            else:
+                database = "none"
+
+            self.prompt = f"rtql [database=({database})] > "
+
+    def _connect_to_tql(self):
+        """
+        Opens TQL using the SSH connection.
+        :return: None
+        """
+        # start the TQL session.
+        # TODO disabling comments, but may want to make a parameter.
+        self._channel.send("tql -script_comments=false\n")
+        response = self._get_tql_response()
+        print("\n".join(response))
 
     def execute_tql_query(self, query):
         """
@@ -173,14 +224,60 @@ class RemoteTQL(TQL):
         :return: A data table with the results.
         :rtype: DataTable
         """
-        pass
+        print(f"running query: {query}")
+
+    def run_tql_command(self, command):
+        """
+        Runs a command in TQL and returns the results as a list of strings..
+        :param command: The command to run.
+        :type command: str
+        :return: The data from the command as a list.
+        :rtype: list of str
+        """
+        print(f"running command: {command}")
+        self._channel.send(command)
+        self._channel.send("\n")
+
+        return self._get_tql_response()
+
+    def _get_tql_response(self):
+        """
+        Waits for a response to a command and returns as a list.  The TQL prompt is not returned.
+        :return: The list of values back from TQL.
+        :rtype: list of str
+        """
+        data = ""
+        full_command = False
+        partial_command = False
+        while (not full_command) and (not partial_command):
+
+            while self._channel.recv_ready():
+                data += str(self._channel.recv(9999))
+                print(data)
+
+            if re.search("TQL \[database=", data):
+                full_command = True
+                self._set_prompt(data=data)
+            elif re.search("\$> ", data):
+                self._set_prompt(partial=True)
+                partial_command = True
+            else:
+                time.sleep(1)  # give it time to work.
+
+
+        data = data.replace("\\r", "")
+        data = data.split("\\n")
+        data = data[1:-1]  # first is the command, last is the prompt.
+
+        return data
 
     def __del__(self):
         """
         Ends the remote TQL session.
         :return: None
         """
-        pass
+        print(f"{self.prompt} shutting down connection")
+        self.__ssh_client.close()
 
 
 # TODO move to an application.
