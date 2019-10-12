@@ -15,6 +15,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 import argparse
 import select
 import socket
+import subprocess
 import sys
 import paramiko
 
@@ -83,24 +84,51 @@ def interactive_mode(rtql):
 
     while command.lower() != "exit":
         if command.lower().startswith("read "):
-            tokens = command.split(" ")
-            if len(tokens) < 2:
-                eprint("filename required")
-            else:
-                filename = tokens[1].strip(";")  # optional, but need to strip.
-                try:
-                    with open(filename, "r") as commands:
-                        for command in commands:
-                            results = rtql.run_tql_command(command=command)
-                            print("\n".join(results))
-                except FileNotFoundError as fnfe:
-                    eprint(f"{filename}: {fnfe.strerror}")
-                command = input(rtql.prompt)
-
+            read_from_file(rtql=rtql, command=command)
+        elif command.lower().startswith("run"):
+            run_shell_command(rtql=rtql, command=command)
         else:
             results = rtql.run_tql_command(command=command)
             print("\n".join(results))
-            command = input(rtql.prompt)
+
+        command = input(rtql.prompt)
+
+
+def read_from_file(rtql, command):
+    """
+    Reads input from a file.
+    :param rtql: Remote TQL object.
+    :type rtql: RemoteTQL
+    :param command: The read command.
+    :type command: str
+    :return: None
+    """
+    tokens = command.split(" ")
+    if len(tokens) < 2:
+        eprint("filename required")
+    else:
+        filename = tokens[1].strip(";")  # optional, but need to strip.
+        try:
+            with open(filename, "r") as commands:
+                for command in commands:
+                    results = rtql.run_tql_command(command=command)
+                    print("\n".join(results))
+        except FileNotFoundError as fnfe:
+            eprint(f"{filename}: {fnfe.strerror}")
+
+
+def run_shell_command(rtql, command):
+    """
+    Runs a shell command.
+    :param rtql: Remote TQL object.
+    :type rtql: RemoteTQL
+    :param command: The command from input.
+    :type command: str
+    :return: None
+    """
+    command = command.strip(";")  # don't need.
+    tokens = command.split(" ")
+    subprocess.run(tokens[1:])
 
 
 if __name__ == "__main__":

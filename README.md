@@ -36,3 +36,9 @@ optional arguments:
   --username USERNAME  username for accessing ThoughtSpot from CLI
   --password PASSWORD  password for accessing ThoughtSpot from CLI
 ~~~
+
+#### Extra Keywords
+
+In addition to all of the standard TQL commands, rtql has the following additional commands:
+* `read <filename>` - Reads commands from a file.
+* `run <cmd>` - Runs a shell command, e.g. ls.  
