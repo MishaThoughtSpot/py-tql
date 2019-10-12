@@ -196,7 +196,7 @@ class RemoteTQL(TQL):
             self.prompt = "$> "
         else:
             if database:
-                pass
+                pass  # use the database, but don't do other checks.
             elif data:
                 m = re.search("\[database=(.*)\]", data)
                 if m:
