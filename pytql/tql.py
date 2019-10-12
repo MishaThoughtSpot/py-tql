@@ -178,6 +178,7 @@ class RemoteTQL(TQL):
 
         self.prompt = None # nice prompt to use.
         self._set_prompt(database="none")
+        self.hostname = hostname
 
         self.__ssh_client = paramiko.SSHClient()
         self.__ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -224,7 +225,7 @@ class RemoteTQL(TQL):
         :return: A data table with the results.
         :rtype: DataTable
         """
-        print(f"running query: {query}")
+        pass
 
     def run_tql_command(self, command):
         """
@@ -234,7 +235,6 @@ class RemoteTQL(TQL):
         :return: The data from the command as a list.
         :rtype: list of str
         """
-        print(f"running command: {command}")
         self._channel.send(command)
         self._channel.send("\n")
 
@@ -276,7 +276,7 @@ class RemoteTQL(TQL):
         Ends the remote TQL session.
         :return: None
         """
-        print(f"{self.prompt} shutting down connection")
+        print(f"{self.prompt} closing connection to {self.hostname}")
         self.__ssh_client.close()
 
 
