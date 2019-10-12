@@ -253,7 +253,6 @@ class RemoteTQL(TQL):
 
             while self._channel.recv_ready():
                 data += str(self._channel.recv(9999))
-                print(data)
 
             if re.search("TQL \[database=", data):
                 full_command = True
