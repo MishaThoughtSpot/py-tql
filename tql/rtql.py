@@ -80,10 +80,27 @@ def interactive_mode(rtql):
     print(f"Starting RTQL version {VERSION}")
 
     command = input(rtql.prompt)
+
     while command.lower() != "exit":
-        results = rtql.run_tql_command(command=command)
-        print("\n".join(results))
-        command = input(rtql.prompt)
+        if command.lower().startswith("read "):
+            tokens = command.split(" ")
+            if len(tokens) < 2:
+                eprint("filename required")
+            else:
+                filename = tokens[1].strip(";")  # optional, but need to strip.
+                try:
+                    with open(filename, "r") as commands:
+                        for command in commands:
+                            results = rtql.run_tql_command(command=command)
+                            print("\n".join(results))
+                except FileNotFoundError as fnfe:
+                    eprint(f"{filename}: {fnfe.strerror}")
+                command = input(rtql.prompt)
+
+        else:
+            results = rtql.run_tql_command(command=command)
+            print("\n".join(results))
+            command = input(rtql.prompt)
 
 
 if __name__ == "__main__":
