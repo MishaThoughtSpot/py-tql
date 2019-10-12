@@ -65,7 +65,9 @@ def stream_commands(rtql):
     :type rtql: RemoteTQL
     :return: None
     """
-    pass
+    for command in sys.stdin:
+        results = rtql.run_tql_command(command=command)
+        print("\n".join(results))
 
 
 def interactive_mode(rtql):
