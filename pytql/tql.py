@@ -204,7 +204,7 @@ class RemoteTQL(TQL):
             else:
                 database = "none"
 
-            self.prompt = f"rtql [database=({database})] > "
+            self.prompt = f"rtql [database={database}] > "
 
     def _connect_to_tql(self):
         """
