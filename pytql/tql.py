@@ -59,6 +59,7 @@ class TQL:
         """
         Returns a list of the databases.
         :return: A list of all the database commands.
+        :rtype: list of str
         """
         out, err = self._execute_query(query=TQL.SHOW_DATABASES)
 
@@ -190,6 +191,14 @@ class RemoteTQL(TQL):
 
         super(RemoteTQL, self).__init__()
 
+    def __del__(self):
+        """
+        Ends the remote TQL session.
+        :return: None
+        """
+        print(f"{self.prompt} closing connection to {self.hostname}")
+        self.__ssh_client.close()
+
     def _set_prompt(self, partial=False, database=None, data=None):
 
         if partial:
@@ -216,16 +225,6 @@ class RemoteTQL(TQL):
         self._channel.send("tql -script_comments=false\n")
         response = self._get_tql_response()
         print("\n".join(response))
-
-    def execute_tql_query(self, query):
-        """
-        Executes a TQL query and returns the data as a data table.
-        :param query: A complete query to send to TQL.
-        :type query: str
-        :return: A data table with the results.
-        :rtype: DataTable
-        """
-        pass
 
     def run_tql_command(self, command):
         """
@@ -263,21 +262,42 @@ class RemoteTQL(TQL):
             else:
                 time.sleep(1)  # give it time to work.
 
-
         data = data.replace("\\r", "")
         data = data.split("\\n")
         data = data[1:-1]  # first is the command, last is the prompt.
 
         return data
 
-    def __del__(self):
+    def execute_tql_query(self, query):
         """
-        Ends the remote TQL session.
-        :return: None
+        Executes a TQL query and returns the data as a data table.
+        :param query: A complete query to send to TQL.
+        :type query: str
+        :return: A data table with the results.
+        :rtype: DataTable
         """
-        print(f"{self.prompt} closing connection to {self.hostname}")
-        self.__ssh_client.close()
+        data = self.run_tql_command(query)
 
+        header = data[0].split("|")  # Header is first row.
+        table = DataTable(header=header)
+
+        data = data[2:-2]  # First two lines are header, last two lines are results.
+        for row in data:
+            table.add_row(row=row.split("|"))
+
+        return table
+
+    def get_databases(self):
+        """
+        Returns a list of the databases.
+        :return: A list of all the database commands.
+        :rtype: list of str
+        """
+        data = self.run_tql_command(command=TQL.SHOW_DATABASES)
+
+        # Returns all tables plus the "Statement executed successfully." results.
+        tables = data[:-1]
+        return tables
 
 # TODO move to an application.
 if __name__ == "__main__":
