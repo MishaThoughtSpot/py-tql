@@ -42,3 +42,4 @@ optional arguments:
 In addition to all of the standard TQL commands, rtql has the following additional commands:
 * `read <filename>` - Reads commands from a file.
 * `run <cmd>` - Runs a shell command, e.g. ls.  
+* `writedb <database> <file>` - Writes the database to the given filename.

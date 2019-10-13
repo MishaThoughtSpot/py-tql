@@ -87,6 +87,8 @@ def interactive_mode(rtql):
             read_from_file(rtql=rtql, command=command)
         elif command.lower().startswith("run"):
             run_shell_command(rtql=rtql, command=command)
+        elif command.lower().startswith("writedb"):
+            write_db_to_file(rtql=rtql, command=command)
         else:
             results = rtql.run_tql_command(command=command)
             print("\n".join(results))
@@ -129,6 +131,31 @@ def run_shell_command(rtql, command):
     command = command.strip(";")  # don't need.
     tokens = command.split(" ")
     subprocess.run(tokens[1:])
+
+
+def write_db_to_file(rtql, command):
+    """
+    Writes the given DB to a file.  Expects the database name and filename.
+    :param rtql: Remote TQL object.
+    :type rtql: RemoteTQL
+    :param command: The command from input.
+    :type command: str
+    :return: None
+    """
+    command = command.strip(";")  # don't need.
+    tokens = command.split(" ")
+
+    # verify the tokens exist.  Doesn't check DB existance or overwrite of file.
+    if len(tokens) < 3:
+        eprint("usage:  writedb <database> <filename>")
+    else:
+        database = tokens[1]
+        filename = tokens[2]
+        script = rtql.run_tql_command(f"script database {database};")
+        del script[-1]  # get rid of message.
+        with open (filename, "w") as dbfile:
+            for line in script:
+                dbfile.write(line + "\n")
 
 
 if __name__ == "__main__":
