@@ -22,7 +22,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 
 TEST_HOSTNAME = "tstest"
 TEST_USERNAME = "admin"
-TEST_PASSWORD = "Adm1n@th0ughtSp0t"
+TEST_PASSWORD = "somepassword"
 
 
 class TestRemoteTQL(unittest.TestCase):
