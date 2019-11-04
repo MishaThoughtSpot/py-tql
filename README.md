@@ -12,7 +12,7 @@ PythonTQL is installed with the same process as other TS Python tools.
 
 You can install using `pip install --upgrade git+https://github.com/thoughtspot/py-tql`
 
-See the general [documentation](https://github.com/thoughtspot/tree/master/python_tools) on setting 
+See the general [documentation](https://github.com/thoughtspot/community-tools/tree/master/python_tools) on setting 
 up your environment and installing using `pip`.
 
 ## Scripts
