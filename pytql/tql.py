@@ -278,12 +278,13 @@ class RemoteTQL(TQL):
         """
         data = self.run_tql_command(query)
 
-        header = data[0].split("|")  # Header is first row.
+        header = [h.strip() for h in data[0].split("|")]  # Header is first row.
         table = DataTable(header=header)
 
         data = data[2:-2]  # First two lines are header, last two lines are results.
         for row in data:
-            table.add_row(row=row.split("|"))
+            row = [r.strip() for r in row.split("|")]
+            table.add_row(row=row)
 
         return table
 
