@@ -281,10 +281,12 @@ class RemoteTQL(TQL):
         header = [h.strip() for h in data[0].split("|")]  # Header is first row.
         table = DataTable(header=header)
 
-        data = data[2:-2]  # First two lines are header, last two lines are results.
+        # First two lines are header, last line is status message, e.g. "Statement executed successfully. "
+        data = data[2:-1]
         for row in data:
-            row = [r.strip() for r in row.split("|")]
-            table.add_row(row=row)
+            if not row.endswith("result rows)"):  # some statements list how many rows, some done.
+                row = [r.strip() for r in row.split("|")]
+                table.add_row(row=row)
 
         return table
 
